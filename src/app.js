@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
 const app = express();
 
 app.use(
@@ -21,6 +20,24 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 
+import userRouter from "./routes/user.rt.js";
 
+
+app.use("/api/v1/user", userRouter);
+
+
+app.use((err, req, res, next) => {
+
+  const statusCode = err.statusCode || 500;
+
+  const response = {
+    success: err.success,
+    message: err.message || "Internal Server Error",
+    ...(err.data && { data: err.data }),
+    ...(Array.isArray(err.errors) && err.errors.length > 0 && { errors: err.errors }),
+  };
+
+  res.status(statusCode).json(response);
+});
 
 export default app;
