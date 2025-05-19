@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../utils/fileUpload.ut.js";
 
 const generateJwtToken = async (userId) => {
   try {
-    const user = await  User.findById(userId);
+    const user = await User.findById(userId);
     const jwtToken = await user.generateJwtToken();
     return { jwtToken };
   } catch (error) {
@@ -56,7 +56,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { jwtToken } = await generateJwtToken(user._id);
   const loggedInUser = await User.findById(user._id).select("-password");
-  loggedInUser.token = jwtToken;
+  const userData = loggedInUser.toObject();
+  userData.token = jwtToken;
   const options = {
     httpOnly: true,
     secure: true,
@@ -65,7 +66,7 @@ const loginUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .cookie("jwtToken", jwtToken, options)
-    .json(new ApiResponse(200, loggedInUser, "Login Successfull"));
+    .json(new ApiResponse(200, userData, "Login Successfull"));
 });
 
 export { registerUser, loginUser };
