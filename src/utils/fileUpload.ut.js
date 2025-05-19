@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import streamifier from "streamifier";
+import fs from "fs";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -7,26 +7,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (buffer) => {
+const uploadOnCloudinary = async (path) => {
   try {
-    if (!buffer) return null;
+    if (!path) return null;
 
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto" },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-
-      streamifier.createReadStream(buffer).pipe(stream);
+    const response = await cloudinary.uploader.upload(path, {
+      resource_type: "auto",
     });
-
-    return result;
+    console.log("File is uploaded");
+    fs.unlinkSync(path);
+    return response;
   } catch (error) {
-    console.error("Cloudinary Upload Error:", error.message);
-    throw error;
+    fs.unlinkSync(path); 
   }
 };
 
