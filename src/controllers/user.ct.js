@@ -3,6 +3,16 @@ import { User } from "../models/user.mo.js";
 import { ApiError, ApiResponse } from "../utils/helper.ut.js";
 import { uploadOnCloudinary } from "../utils/fileUpload.ut.js";
 
+const generateJwtToken = async (userId) => {
+  try {
+    const user = await  User.findById(userId);
+    const jwtToken = await user.generateJwtToken();
+    return { jwtToken };
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong");
+  }
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -32,4 +42,30 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, newUser, "User Created Successfully"));
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User with this email not found");
+  }
+  const correctPassword = await user.isPasswordCorrect(password);
+  if (!correctPassword) {
+    throw new ApiError(401, "Passowrd is incorrect");
+  }
+
+  const { jwtToken } = await generateJwtToken(user._id);
+  const loggedInUser = await User.findById(user._id).select("-password");
+  loggedInUser.token = jwtToken;
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .cookie("jwtToken", jwtToken, options)
+    .json(new ApiResponse(200, loggedInUser, "Login Successfull"));
+});
+
+export { registerUser, loginUser };
