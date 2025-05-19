@@ -22,9 +22,12 @@ app.use(cookieParser());
 
 import userRouter from "./routes/user.rt.js";
 import blogRoute  from "./routes/blog.rt.js"
+import commentRoutes from "./routes/comment.rt.js";
+
 
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/blog", blogRoute)
+app.use("/api/v1/blog", blogRoute);
+app.use("/api/v1/comments", commentRoutes);
 
 
 app.use((err, req, res, next) => {

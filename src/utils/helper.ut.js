@@ -32,4 +32,28 @@ class ApiResponse {
   }
 }
 
-export { ApiError, ApiResponse };
+
+
+const  makenestedComments = (comments) =>{
+  const map = {};
+  const roots = [];
+
+  comments.forEach((comment) => {
+    map[comment._id] = { ...comment.toObject(), replies: [] };
+  });
+
+  comments.forEach((comment) => {
+    if (comment.parentComment) {
+      const parent = map[comment.parentComment._id];
+      if (parent) {
+        parent.replies.push(map[comment._id]);
+      }
+    } else {
+      roots.push(map[comment._id]);
+    }
+  });
+
+  return roots;
+}
+
+export { ApiError, ApiResponse, makenestedComments };
