@@ -73,6 +73,20 @@ const updateBlog = asyncHandler(async (req, res) => {
 });
 
 
+const getBlogById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const blog = await Blog.findById(id).populate("author", "name email");
+
+  if (!blog) {
+    throw new ApiError(404, "Blog not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200, blog, "Blog retrieved successfully"));
+});
+
+
+
 
 const deleteBlog = asyncHandler(async (req, res) => {
   const blog = await Blog.findById(req.params.id);
@@ -91,4 +105,4 @@ const deleteBlog = asyncHandler(async (req, res) => {
 
 
 
-export { createBlog, getUserBlogs, updateBlog, deleteBlog };
+export { createBlog, getUserBlogs, updateBlog, deleteBlog, getBlogById };

@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { upload } from "../middlewares/multer.mw.js";
-import { createBlog, deleteBlog, getUserBlogs, updateBlog } from "../controllers/blog.ct.js";
+import {
+  createBlog,
+  deleteBlog,
+  getBlogById,
+  getUserBlogs,
+  updateBlog,
+} from "../controllers/blog.ct.js";
 import { authenticate } from "../middlewares/auth.mw.js";
 
 const router = Router();
@@ -16,7 +22,7 @@ router.route("/createblog").post(
   createBlog
 );
 
-router.get("/myblogs",  authenticate , getUserBlogs);
+router.get("/myblogs", authenticate, getUserBlogs);
 router
   .route("/:id")
   .put(
@@ -30,5 +36,6 @@ router
     updateBlog
   )
   .delete(authenticate, deleteBlog);
+router.route("/:id").get(authenticate, getBlogById);
 
 export default router;
