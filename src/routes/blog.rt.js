@@ -36,6 +36,6 @@ router
     updateBlog
   )
   .delete(authenticate, deleteBlog);
-router.route("/:id").get(authenticate, getBlogById);
+router.get("/:id", authenticate, getBlogById);
 
 export default router;
